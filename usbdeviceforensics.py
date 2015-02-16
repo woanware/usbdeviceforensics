@@ -3,19 +3,15 @@
 # This file is part of usbdeviceforensics. usbdeviceforensics is a python console based port of woanware's
 # UsbDeviceForensics .Net WinForms GUI application.
 #
-# Copyright 2014 Mark Woan <markwoan[@]gmail.com>
+# Copyright 2015 Mark Woan <markwoan[@]gmail.com>
 
 import argparse
 import os
 from Registry import *
 import traceback
 import sys
-import binascii
-import struct
 from enum import Enum
 from datetime import datetime, timedelta
-from pytz import timezone
-import pytz
 import re
 import csv
 
@@ -42,7 +38,7 @@ class WindowsVersions(Enum):
 # Variables ###################################################################
 
 usb_devices = []
-debug_mode = True
+debug_mode = False
 os_version = WindowsVersions.NotDefined
 
 # Objects #####################################################################
