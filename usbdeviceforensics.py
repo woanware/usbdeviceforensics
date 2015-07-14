@@ -514,7 +514,7 @@ def process_usb_stor_properties(registry):
                     if key64 is not None:
                         value64 = get_reg_value(key64, 'Data')
                         if value64 is not None:
-                            usb_device.usbstor_datetime64 = value64.value()
+                            usb_device.usbstor_datetime64 = key64.timestamp()
                             write_debug(name='USBSTOR date/time (64)', value=usb_device.usbstor_datetime64.strftime('%Y-%m-%dT%H:%M:%S'))
                     else:
                         write_debug(data='{83da6326-97a6-4088-9453-a1923f573b29}\\00000064\\00000000 is None')
@@ -523,7 +523,7 @@ def process_usb_stor_properties(registry):
                     if key65 is not None:
                         value65 = get_reg_value(key65, 'Data')
                         if value65 is not None:
-                            usb_device.usbstor_datetime65 = value65.value()
+                            usb_device.usbstor_datetime65 = key65.timestamp()
                             write_debug(name='USBSTOR date/time (65)', value=usb_device.usbstor_datetime65.strftime('%Y-%m-%dT%H:%M:%S'))
                     else:
                         write_debug(data='{83da6326-97a6-4088-9453-a1923f573b29}\\00000065\\00000000 is None')
@@ -532,7 +532,7 @@ def process_usb_stor_properties(registry):
                     if key64win8 is not None:
                         value64win8 = get_reg_value(key64win8, '(default)')
                         if value64win8 is not None:
-                            usb_device.usbstor_datetime64 = value64win8.value()
+                            usb_device.usbstor_datetime64 = key64win8.timestamp()
                             write_debug(name='USBSTOR date/time (64)', value=usb_device.usbstor_datetime64.strftime('%Y-%m-%dT%H:%M:%S'))
                     else:
                         write_debug(data='{83da6326-97a6-4088-9453-a1923f573b29}\\0064 is None')
@@ -541,7 +541,7 @@ def process_usb_stor_properties(registry):
                     if key65win8 is not None:
                         value65win8 = get_reg_value(key65win8, '(default)')
                         if not value65win8 is None:
-                            usb_device.usbstor_datetime65 = value65win8.value()
+                            usb_device.usbstor_datetime65 = key65win8.timestamp()
                             write_debug(name='USBSTOR date/time (65)', value=usb_device.usbstor_datetime65.strftime('%Y-%m-%dT%H:%M:%S'))
                     else:
                         write_debug(data='{83da6326-97a6-4088-9453-a1923f573b29}\\0065 is None')
@@ -550,7 +550,7 @@ def process_usb_stor_properties(registry):
                     if key66 is not None:
                         value66 = get_reg_value(key66, '(default)')
                         if value66 is not None:
-                            usb_device.usbstor_datetime66 = value66.value()
+                            usb_device.usbstor_datetime66 = key66.timestamp()
                             write_debug(name='USBSTOR date/time (66)', value=usb_device.usbstor_datetime66.strftime('%Y-%m-%dT%H:%M:%S'))
                         else:
                             write_debug(data='{83da6326-97a6-4088-9453-a1923f573b29}\\0066\\(default) is None')
@@ -561,7 +561,7 @@ def process_usb_stor_properties(registry):
                     if key67 is not None:
                         value67 = get_reg_value(key67, '(default)')
                         if value67 is not None:
-                            usb_device.usbstor_datetime67 = value67.value()
+                            usb_device.usbstor_datetime67 = key67.timestamp()
                             write_debug(name='USBSTOR date/time (67)', value=usb_device.usbstor_datetime67.strftime('%Y-%m-%dT%H:%M:%S'))
                     else:
                         write_debug(data='{83da6326-97a6-4088-9453-a1923f573b29}\\0067 is None')
