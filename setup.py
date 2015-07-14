@@ -5,7 +5,7 @@ from cx_Freeze import setup, Executable
 build_exe_options = {"packages": ["Registry"]}
 
 setup(  name = "usbdeviceforensics",
-        version = "0.0.2",
+        version = "0.0.3",
         description = "usbdeviceforensics",
         options = {"build_exe": build_exe_options},
         executables = [Executable("usbdeviceforensics.py")])

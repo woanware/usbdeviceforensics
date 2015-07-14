@@ -26,6 +26,13 @@ This script needs the [python-registry](https://github.com/williballenthin/pytho
 - cd python-registry
 - sudo ./setup.py install
 
+## Compilation (Windows)
+
+- Install cx_Freeze in the python installation
+- Run the following command when in the source directory:
+ 
+`python setup.py build` 
+
 ## Links ##
 
 - http://blogs.sans.org/computer-forensics/2009/09/09/computer-forensic-guide-to-profiling-usb-thumbdrives-on-win7-vista-and-xp

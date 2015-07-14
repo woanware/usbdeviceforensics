@@ -1,5 +1,9 @@
 # History #
 
+**v0.0.3**
+
+- Added timestamp fixes from DanielW
+
 **v0.0.2**
 
 - Fixed RegFileTime parsing
