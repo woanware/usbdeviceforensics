@@ -262,16 +262,16 @@ def output_data_to_file_csv(output):
         writer = csv.writer(f, delimiter='\t', quotechar='"', quoting=csv.QUOTE_ALL)
         for device in usb_devices:
             data = []
-            data.append(device.vendor)
-            data.append(device.product)
-            data.append(device.version)
-            data.append(device.serial_number)
-            data.append(device.vid)
-            data.append(device.pid)
-            data.append(device.parent_prefix_id)
-            data.append(device.volume_name)
-            data.append(device.guid)
-            data.append(device.mountpoint)
+            data.append(device.vendor.encode('utf-8'))
+            data.append(device.product.encode('utf-8'))
+            data.append(device.version.encode('utf-8'))
+            data.append(device.serial_number.encode('utf-8'))
+            data.append(device.vid.encode('utf-8'))
+            data.append(device.pid.encode('utf-8'))
+            data.append(device.parent_prefix_id.encode('utf-8'))
+            data.append(device.volume_name.encode('utf-8'))
+            data.append(device.guid.encode('utf-8'))
+            data.append(device.mountpoint.encode('utf-8'))
             if device.install_datetime != datetime.min:
                 data.append(device.install_datetime)
             if device.usb_stor_datetime != datetime.min:
@@ -304,9 +304,9 @@ def output_data_to_file_csv(output):
             for em in device.emdmgmt:
                 if em.timestamp != datetime.min:
                     data.append(em.timestamp)
-                data.append(em.volume_serial_num)
-                data.append(em.volume_serial_num_hex)
-                data.append(em.volume_name)
+                data.append(em.volume_serial_num.encode('utf-8'))
+                data.append(em.volume_serial_num_hex.encode('utf-8'))
+                data.append(em.volume_name.encode('utf-8'))
 
             # Balance out the EmdMgmt columns
             if len(device.emdmgmt) < numEmdMgmt:
@@ -315,6 +315,7 @@ def output_data_to_file_csv(output):
                     data.append('')
                     data.append('')
                     data.append('')
+
 
             writer.writerow(data)
 
@@ -325,18 +326,18 @@ def output_data_to_file_text(output):
 
     with open(output, "wb") as f:
         for device in usb_devices:
-            f.write("Vendor: " + device.vendor + '\n')
-            f.write("Product: " + device.product + '\n')
-            f.write("Version: " + device.version + '\n')
-            f.write("Serial Number: " + device.serial_number + '\n')
-            f.write("VID: " + device.vid + '\n')
-            f.write("PID: " + device.pid + '\n')
-            f.write("Parent Prefix ID: " + device.parent_prefix_id + '\n')
-            f.write("Drive Letter: " + device.drive_letter + '\n')
-            f.write("Volume Name: " + device.volume_name + '\n')
-            f.write("GUID : " + device.guid + '\n')
-            f.write("Mountpoint: " + device.mountpoint + '\n')
-            f.write("Disk Signature: " + device.disk_signature + '\n')
+            f.write("Vendor: " + device.vendor.encode('utf-8') + '\n')
+            f.write("Product: " + device.product.encode('utf-8') + '\n')
+            f.write("Version: " + device.version.encode('utf-8') + '\n')
+            f.write("Serial Number: " + device.serial_number.encode('utf-8') + '\n')
+            f.write("VID: " + device.vid.encode('utf-8') + '\n')
+            f.write("PID: " + device.pid.encode('utf-8') + '\n')
+            f.write("Parent Prefix ID: " + device.parent_prefix_id.encode('utf-8') + '\n')
+            f.write("Drive Letter: " + device.drive_letter.encode('utf-8') + '\n')
+            f.write("Volume Name: " + device.volume_name.encode('utf-8') + '\n')
+            f.write("GUID : " + device.guid.encode('utf-8') + '\n')
+            f.write("Mountpoint: " + device.mountpoint.encode('utf-8') + '\n')
+            f.write("Disk Signature: " + device.disk_signature.encode('utf-8') + '\n')
 
             if device.device_classes_datetime_53f56307b6bf11d094f200a0c91efb8b != datetime.min:
                 f.write("Device Classes Timestamp (53f56): " + device.device_classes_datetime_53f56307b6bf11d094f200a0c91efb8b.strftime('%Y-%m-%dT%H:%M:%S') + '\n')
@@ -363,9 +364,9 @@ def output_data_to_file_text(output):
                     f.write('MP2 Timestamp: ' + device.mountpoint2[i].timestamp.strftime('%Y-%m-%dT%H:%M:%S') + '\n')
 
             for emd in device.emdmgmt:
-                f.write('EMD Volume Serial No.: ' + emd.volume_serial_num + '\n')
-                f.write('EMD Volume Serial No. (hex): ' + emd.volume_serial_num_hex + '\n')
-                f.write('EMD Volume Name: ' + emd.volume_name + '\n')
+                f.write('EMD Volume Serial No.: ' + emd.volume_serial_num.encode('utf-8') + '\n')
+                f.write('EMD Volume Serial No. (hex): ' + emd.volume_serial_num_hex.encode('utf-8') + '\n')
+                f.write('EMD Volume Name: ' + emd.volume_name.encode('utf-8') + '\n')
                 if emd.timestamp != datetime.min:
                     f.write('EMD Timestamp: ' + emd.timestamp.strftime('%Y-%m-%dT%H:%M:%S') + '\n')
 
@@ -393,59 +394,64 @@ def process_usb_stor(registry):
             ccs.append(k.name())
 
     for c in ccs:
-        key = registry.open(c + '\\Enum\\USBStor')
-        for k in key.subkeys():
-            parts = k.name().split('&')
+        try:
 
-            if len(parts) == 0:
-                continue
+            key = registry.open(c + '\\Enum\\USBStor')
+            for k in key.subkeys():
+                parts = k.name().split('&')
 
-            if parts[0].lower() != 'disk':
-                write_debug(data='USBStor key name does not include the "disk" keyword: ' + k.name())
-                continue
+                if len(parts) == 0:
+                    continue
 
-            for device_sk in k.subkeys():
-                usb_device = UsbDevice()
+                if parts[0].lower() != 'disk':
+                    write_debug(data='USBStor key name does not include the "disk" keyword: ' + k.name())
+                    continue
 
-                if len(parts) == 4:
-                    usb_device.vendor = parts[1]
-                    write_debug(name='Vendor', value=usb_device.vendor)
-                    usb_device.product = parts[2]
-                    write_debug(name='Product', value=usb_device.product)
-                    usb_device.version = parts[3]
-                    write_debug(name='Version', value=usb_device.version)
+                for device_sk in k.subkeys():
+                    usb_device = UsbDevice()
 
-                usb_device.usb_stor_datetime = device_sk.timestamp()
-                write_debug(name='USBStor Timestamp', value=usb_device.usb_stor_datetime.strftime('%Y-%m-%dT%H:%M:%S'))
+                    if len(parts) == 4:
+                        usb_device.vendor = parts[1]
+                        write_debug(name='Vendor', value=usb_device.vendor)
+                        usb_device.product = parts[2]
+                        write_debug(name='Product', value=usb_device.product)
+                        usb_device.version = parts[3]
+                        write_debug(name='Version', value=usb_device.version)
 
-                parts_serial_no = device_sk.name().split('&')
-                if len(parts_serial_no) == 2:
-                    serial_no = parts_serial_no[0]
-                else:
-                    serial_no = device_sk.name()
+                    usb_device.usb_stor_datetime = device_sk.timestamp()
+                    write_debug(name='USBStor Timestamp', value=usb_device.usb_stor_datetime.strftime('%Y-%m-%dT%H:%M:%S'))
 
-                usb_device.serial_number = serial_no
-                write_debug(name='USBStor Serial No.', value=usb_device.serial_number)
+                    parts_serial_no = device_sk.name().split('&')
+                    if len(parts_serial_no) == 2:
+                        serial_no = parts_serial_no[0]
+                    else:
+                        serial_no = device_sk.name()
 
-                # Attempt to retrieve the "ParentIdPrefix" value, if it doesn't exist then
-                # use the serial no/key name which is the "ParentIdPrefix" if it contains "&"
-                reg_value = get_reg_value(device_sk, 'ParentIdPrefix')
-                if not reg_value is None:
-                    usb_device.parent_prefix_id = reg_value.value()
-                    write_debug(name='ParentIdPrefix', value=usb_device.parent_prefix_id)
-                else:
-                    write_debug(data='ParentIDPrefix registry value does not exist')
-                    if '&' in device_sk.name():
-                        usb_device.parent_prefix_id = device_sk.name()
+                    usb_device.serial_number = serial_no
+                    write_debug(name='USBStor Serial No.', value=usb_device.serial_number)
+
+                    # Attempt to retrieve the "ParentIdPrefix" value, if it doesn't exist then
+                    # use the serial no/key name which is the "ParentIdPrefix" if it contains "&"
+                    reg_value = get_reg_value(device_sk, 'ParentIdPrefix')
+                    if not reg_value is None:
+                        usb_device.parent_prefix_id = reg_value.value()
                         write_debug(name='ParentIdPrefix', value=usb_device.parent_prefix_id)
                     else:
-                        write_debug(data='Device name does not contain "&":' + device_sk.name())
+                        write_debug(data='ParentIDPrefix registry value does not exist')
+                        if '&' in device_sk.name():
+                            usb_device.parent_prefix_id = device_sk.name()
+                            write_debug(name='ParentIdPrefix', value=usb_device.parent_prefix_id)
+                        else:
+                            write_debug(data='Device name does not contain "&":' + device_sk.name())
 
-                if not does_usb_device_exist(usb_device):
-                    write_debug(data='USB device does not exist so adding new object')
-                    usb_devices.append(usb_device)
-                else:
-                    write_debug(data='USB device already exists')
+                    if not does_usb_device_exist(usb_device):
+                        write_debug(data='USB device does not exist so adding new object')
+                        usb_devices.append(usb_device)
+                    else:
+                        write_debug(data='USB device already exists')
+        except Registry.RegistryKeyNotFoundException:
+            pass
+
 
 
 
@@ -475,96 +481,100 @@ def process_usb_stor_properties(registry):
             ccs.append(k.name())
 
     for c in ccs:
-        key = registry.open(c + '\\Enum\\USBStor')
-        for k in key.subkeys():
-            parts = k.name().split('&')
+        try:
+            key = registry.open(c + '\\Enum\\USBStor')
+            for k in key.subkeys():
+                parts = k.name().split('&')
 
-            if len(parts) == 0:
-                continue
-
-            if parts[0].lower() != 'disk':
-                write_debug(data='USBStor key name does not include the "disk" keyword: ' + k.name())
-                continue
-
-            if len(parts) == 4:
-                vendor = parts[1]
-                product = parts[2]
-                version = parts[3]
-
-            for device_sk in k.subkeys():
-                write_debug(name='USBStor Serial No.', value=device_sk.name())
-                parts_serial_no = device_sk.name().split('&')
-                if len(parts_serial_no) == 2:
-                    serial_no = parts_serial_no[0]
-                else:
-                    serial_no = device_sk.name()
-
-                usb_device = get_usb_device(serial_number=serial_no,
-                                            vendor=vendor,
-                                            product=product,
-                                            version=version)
-                if usb_device is None:
+                if len(parts) == 0:
                     continue
 
-                for sub_key_device in device_sk.subkeys():
-                    if sub_key_device.name().lower() != 'properties':
+                if parts[0].lower() != 'disk':
+                    write_debug(data='USBStor key name does not include the "disk" keyword: ' + k.name())
+                    continue
+
+                if len(parts) == 4:
+                    vendor = parts[1]
+                    product = parts[2]
+                    version = parts[3]
+
+                for device_sk in k.subkeys():
+                    write_debug(name='USBStor Serial No.', value=device_sk.name())
+                    parts_serial_no = device_sk.name().split('&')
+                    if len(parts_serial_no) == 2:
+                        serial_no = parts_serial_no[0]
+                    else:
+                        serial_no = device_sk.name()
+
+                    usb_device = get_usb_device(serial_number=serial_no,
+                                                vendor=vendor,
+                                                product=product,
+                                                version=version)
+                    if usb_device is None:
                         continue
 
-                    key64 = get_key(sub_key_device, r'{83da6326-97a6-4088-9453-a1923f573b29}\00000064\00000000')
-                    if key64 is not None:
-                        value64 = get_reg_value(key64, 'Data')
-                        if value64 is not None:
-                            usb_device.usbstor_datetime64 = key64.timestamp()
-                            write_debug(name='USBSTOR date/time (64)', value=usb_device.usbstor_datetime64.strftime('%Y-%m-%dT%H:%M:%S'))
-                    else:
-                        write_debug(data='{83da6326-97a6-4088-9453-a1923f573b29}\\00000064\\00000000 is None')
+                    for sub_key_device in device_sk.subkeys():
+                        if sub_key_device.name().lower() != 'properties':
+                            continue
 
-                    key65 = get_key(sub_key_device, r'{83da6326-97a6-4088-9453-a1923f573b29}\00000065\00000000')
-                    if key65 is not None:
-                        value65 = get_reg_value(key65, 'Data')
-                        if value65 is not None:
-                            usb_device.usbstor_datetime65 = key65.timestamp()
-                            write_debug(name='USBSTOR date/time (65)', value=usb_device.usbstor_datetime65.strftime('%Y-%m-%dT%H:%M:%S'))
-                    else:
-                        write_debug(data='{83da6326-97a6-4088-9453-a1923f573b29}\\00000065\\00000000 is None')
-
-                    key64win8 = get_key(sub_key_device, r'{83da6326-97a6-4088-9453-a1923f573b29}\0064')
-                    if key64win8 is not None:
-                        value64win8 = get_reg_value(key64win8, '(default)')
-                        if value64win8 is not None:
-                            usb_device.usbstor_datetime64 = key64win8.timestamp()
-                            write_debug(name='USBSTOR date/time (64)', value=usb_device.usbstor_datetime64.strftime('%Y-%m-%dT%H:%M:%S'))
-                    else:
-                        write_debug(data='{83da6326-97a6-4088-9453-a1923f573b29}\\0064 is None')
-
-                    key65win8 = get_key(sub_key_device, r'{83da6326-97a6-4088-9453-a1923f573b29}\0065')
-                    if key65win8 is not None:
-                        value65win8 = get_reg_value(key65win8, '(default)')
-                        if not value65win8 is None:
-                            usb_device.usbstor_datetime65 = key65win8.timestamp()
-                            write_debug(name='USBSTOR date/time (65)', value=usb_device.usbstor_datetime65.strftime('%Y-%m-%dT%H:%M:%S'))
-                    else:
-                        write_debug(data='{83da6326-97a6-4088-9453-a1923f573b29}\\0065 is None')
-
-                    key66 = get_key(sub_key_device, r'{83da6326-97a6-4088-9453-a1923f573b29}\0066')
-                    if key66 is not None:
-                        value66 = get_reg_value(key66, '(default)')
-                        if value66 is not None:
-                            usb_device.usbstor_datetime66 = key66.timestamp()
-                            write_debug(name='USBSTOR date/time (66)', value=usb_device.usbstor_datetime66.strftime('%Y-%m-%dT%H:%M:%S'))
+                        key64 = get_key(sub_key_device, r'{83da6326-97a6-4088-9453-a1923f573b29}\00000064\00000000')
+                        if key64 is not None:
+                            value64 = get_reg_value(key64, 'Data')
+                            if value64 is not None:
+                                usb_device.usbstor_datetime64 = key64.timestamp()
+                                write_debug(name='USBSTOR date/time (64)', value=usb_device.usbstor_datetime64.strftime('%Y-%m-%dT%H:%M:%S'))
                         else:
-                            write_debug(data='{83da6326-97a6-4088-9453-a1923f573b29}\\0066\\(default) is None')
-                    else:
-                        write_debug(data='{83da6326-97a6-4088-9453-a1923f573b29}\\0066 is None')
+                            write_debug(data='{83da6326-97a6-4088-9453-a1923f573b29}\\00000064\\00000000 is None')
 
-                    key67 = get_key(sub_key_device, r'{83da6326-97a6-4088-9453-a1923f573b29}\0067')
-                    if key67 is not None:
-                        value67 = get_reg_value(key67, '(default)')
-                        if value67 is not None:
-                            usb_device.usbstor_datetime67 = key67.timestamp()
-                            write_debug(name='USBSTOR date/time (67)', value=usb_device.usbstor_datetime67.strftime('%Y-%m-%dT%H:%M:%S'))
-                    else:
-                        write_debug(data='{83da6326-97a6-4088-9453-a1923f573b29}\\0067 is None')
+                        key65 = get_key(sub_key_device, r'{83da6326-97a6-4088-9453-a1923f573b29}\00000065\00000000')
+                        if key65 is not None:
+                            value65 = get_reg_value(key65, 'Data')
+                            if value65 is not None:
+                                usb_device.usbstor_datetime65 = key65.timestamp()
+                                write_debug(name='USBSTOR date/time (65)', value=usb_device.usbstor_datetime65.strftime('%Y-%m-%dT%H:%M:%S'))
+                        else:
+                            write_debug(data='{83da6326-97a6-4088-9453-a1923f573b29}\\00000065\\00000000 is None')
+
+                        key64win8 = get_key(sub_key_device, r'{83da6326-97a6-4088-9453-a1923f573b29}\0064')
+                        if key64win8 is not None:
+                            value64win8 = get_reg_value(key64win8, '(default)')
+                            if value64win8 is not None:
+                                usb_device.usbstor_datetime64 = key64win8.timestamp()
+                                write_debug(name='USBSTOR date/time (64)', value=usb_device.usbstor_datetime64.strftime('%Y-%m-%dT%H:%M:%S'))
+                        else:
+                            write_debug(data='{83da6326-97a6-4088-9453-a1923f573b29}\\0064 is None')
+
+                        key65win8 = get_key(sub_key_device, r'{83da6326-97a6-4088-9453-a1923f573b29}\0065')
+                        if key65win8 is not None:
+                            value65win8 = get_reg_value(key65win8, '(default)')
+                            if not value65win8 is None:
+                                usb_device.usbstor_datetime65 = key65win8.timestamp()
+                                write_debug(name='USBSTOR date/time (65)', value=usb_device.usbstor_datetime65.strftime('%Y-%m-%dT%H:%M:%S'))
+                        else:
+                            write_debug(data='{83da6326-97a6-4088-9453-a1923f573b29}\\0065 is None')
+
+                        key66 = get_key(sub_key_device, r'{83da6326-97a6-4088-9453-a1923f573b29}\0066')
+                        if key66 is not None:
+                            value66 = get_reg_value(key66, '(default)')
+                            if value66 is not None:
+                                usb_device.usbstor_datetime66 = key66.timestamp()
+                                write_debug(name='USBSTOR date/time (66)', value=usb_device.usbstor_datetime66.strftime('%Y-%m-%dT%H:%M:%S'))
+                            else:
+                                write_debug(data='{83da6326-97a6-4088-9453-a1923f573b29}\\0066\\(default) is None')
+                        else:
+                            write_debug(data='{83da6326-97a6-4088-9453-a1923f573b29}\\0066 is None')
+
+                        key67 = get_key(sub_key_device, r'{83da6326-97a6-4088-9453-a1923f573b29}\0067')
+                        if key67 is not None:
+                            value67 = get_reg_value(key67, '(default)')
+                            if value67 is not None:
+                                usb_device.usbstor_datetime67 = key67.timestamp()
+                                write_debug(name='USBSTOR date/time (67)', value=usb_device.usbstor_datetime67.strftime('%Y-%m-%dT%H:%M:%S'))
+                        else:
+                            write_debug(data='{83da6326-97a6-4088-9453-a1923f573b29}\\0067 is None')
+
+        except Registry.RegistryKeyNotFoundException:
+            pass
 
 
 def process_usb(registry):
@@ -579,25 +589,28 @@ def process_usb(registry):
             ccs.append(k.name())
 
     for c in ccs:
-        key = registry.open(c + '\\Enum\\USB')
-        for sub_key in key.subkeys():
-            if (not 'vid' in sub_key.name().lower() and
-                    not 'pid' in sub_key.name().lower()):
-                continue
-
-            # Get the serial number which is the next key
-            for serial_key in sub_key.subkeys():
-                usb_device = get_usb_device(serial_number=serial_key.name())
-                if usb_device is None:
+        try:
+            key = registry.open(c + '\\Enum\\USB')
+            for sub_key in key.subkeys():
+                if (not 'vid' in sub_key.name().lower() and
+                        not 'pid' in sub_key.name().lower()):
                     continue
 
-                vid_pid = sub_key.name().split('&')
-                usb_device.vid = vid_pid[0]
-                write_debug(name='VID', value=usb_device.vid)
-                usb_device.pid = vid_pid[1]
-                write_debug(name='PID', value=usb_device.pid)
-                usb_device.vid_pid_datetime = sub_key.timestamp()
-                write_debug(name='VID/PID datetime', value=usb_device.vid_pid_datetime.strftime('%Y-%m-%dT%H:%M:%S'))
+                # Get the serial number which is the next key
+                for serial_key in sub_key.subkeys():
+                    usb_device = get_usb_device(serial_number=serial_key.name())
+                    if usb_device is None:
+                        continue
+
+                    vid_pid = sub_key.name().split('&')
+                    usb_device.vid = vid_pid[0]
+                    write_debug(name='VID', value=usb_device.vid)
+                    usb_device.pid = vid_pid[1]
+                    write_debug(name='PID', value=usb_device.pid)
+                    usb_device.vid_pid_datetime = sub_key.timestamp()
+                    write_debug(name='VID/PID datetime', value=usb_device.vid_pid_datetime.strftime('%Y-%m-%dT%H:%M:%S'))
+        except Registry.RegistryKeyNotFoundException:
+            pass
 
 
 def process_mounted_devices(registry):
@@ -692,33 +705,39 @@ def process_device_classes(registry):
             continue
 
         for c in ccs:
-            key = registry.open(c + '\\Control\\DeviceClasses\\{53f56307-b6bf-11d0-94f2-00a0c91efb8b}')
-            for sub_key in key.subkeys():
-                if usb_device.mountpoint in sub_key.name():
-                    usb_device.device_classes_datetime_53f56307b6bf11d094f200a0c91efb8b = sub_key.timestamp()
-                    write_debug(name='Dev Classes date/time (53f56)',
-                                value=usb_device.device_classes_datetime_53f56307b6bf11d094f200a0c91efb8b.strftime('%Y-%m-%dT%H:%M:%S'))
-                    continue
+            try:
+                key = registry.open(c + '\\Control\\DeviceClasses\\{53f56307-b6bf-11d0-94f2-00a0c91efb8b}')
+                for sub_key in key.subkeys():
+                    if usb_device.mountpoint in sub_key.name():
+                        usb_device.device_classes_datetime_53f56307b6bf11d094f200a0c91efb8b = sub_key.timestamp()
+                        write_debug(name='Dev Classes date/time (53f56)',
+                                    value=usb_device.device_classes_datetime_53f56307b6bf11d094f200a0c91efb8b.strftime('%Y-%m-%dT%H:%M:%S'))
+                        continue
 
-                if usb_device.serial_number in sub_key.name():
-                    usb_device.device_classes_datetime_53f56307b6bf11d094f200a0c91efb8b = sub_key.timestamp()
-                    write_debug(name='Dev Classes date/time (53f56)',
-                                value=usb_device.device_classes_datetime_53f56307b6bf11d094f200a0c91efb8b.strftime('%Y-%m-%dT%H:%M:%S'))
-                    continue
+                    if usb_device.serial_number in sub_key.name():
+                        usb_device.device_classes_datetime_53f56307b6bf11d094f200a0c91efb8b = sub_key.timestamp()
+                        write_debug(name='Dev Classes date/time (53f56)',
+                                    value=usb_device.device_classes_datetime_53f56307b6bf11d094f200a0c91efb8b.strftime('%Y-%m-%dT%H:%M:%S'))
+                        continue
+            except Registry.RegistryKeyNotFoundException:
+                pass
 
-            key = registry.open(c + '\\Control\\DeviceClasses\\{10497b1b-ba51-44e5-8318-a65c837b6661}')
-            for sub_key in key.subkeys():
-                if usb_device.mountpoint in sub_key.name():
-                    usb_device.device_classes_datetime_10497b1bba5144e58318a65c837b6661 = sub_key.timestamp()
-                    write_debug(name='Dev Classes date/time (10497)',
-                                value=usb_device.device_classes_datetime_10497b1bba5144e58318a65c837b6661.strftime('%Y-%m-%dT%H:%M:%S'))
-                    continue
+            try:
+                key = registry.open(c + '\\Control\\DeviceClasses\\{10497b1b-ba51-44e5-8318-a65c837b6661}')
+                for sub_key in key.subkeys():
+                    if usb_device.mountpoint in sub_key.name():
+                        usb_device.device_classes_datetime_10497b1bba5144e58318a65c837b6661 = sub_key.timestamp()
+                        write_debug(name='Dev Classes date/time (10497)',
+                                    value=usb_device.device_classes_datetime_10497b1bba5144e58318a65c837b6661.strftime('%Y-%m-%dT%H:%M:%S'))
+                        continue
 
-                if usb_device.serial_number in sub_key.name():
-                    usb_device.device_classes_datetime_10497b1bba5144e58318a65c837b6661 = sub_key.timestamp()
-                    write_debug(name='Dev Classes date/time (10497)',
-                                value=usb_device.device_classes_datetime_10497b1bba5144e58318a65c837b6661.strftime('%Y-%m-%dT%H:%M:%S'))
-                    continue
+                    if usb_device.serial_number in sub_key.name():
+                        usb_device.device_classes_datetime_10497b1bba5144e58318a65c837b6661 = sub_key.timestamp()
+                        write_debug(name='Dev Classes date/time (10497)',
+                                    value=usb_device.device_classes_datetime_10497b1bba5144e58318a65c837b6661.strftime('%Y-%m-%dT%H:%M:%S'))
+                        continue
+            except Registry.RegistryKeyNotFoundException:
+                pass
 
 # Software Hive Methods #######################################################
 
