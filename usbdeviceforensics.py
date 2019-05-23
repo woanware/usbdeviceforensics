@@ -230,7 +230,7 @@ def output_data_to_file_csv(output):
 
     with open(output, "wb") as f:
         # Write the CSV headers
-        f.write("Vendor\tProduct\tVersion\tSerialNumber\tVID\tPID\tParentIDPrefix\tVolumeName\tGUID\tMountPoint\tInstall\tUSBSTOR\tUSBSTOR Properties (Install Date)\tUSBSTOR Properties (First Install Date)\tUSBSTOR Properties (Last Arrival Date)\tUSBSTOR Properties (Last Removal Date)\tDeviceClasses (53f56307-b6bf-11d0-94f2-00a0c91efb8b)\tDeviceClasses (10497b1b-ba51-44e5-8318-a65c837b6661)\tEnum\\USB VIDPID\t")
+        f.write("Vendor\tProduct\tVersion\tSerialNumber\tVID\tPID\tParentIDPrefix\tDriveLetter\tVolumeName\tGUID\tMountPoint\tInstall\tUSBSTOR\tUSBSTOR Properties (Install Date)\tUSBSTOR Properties (First Install Date)\tUSBSTOR Properties (Last Arrival Date)\tUSBSTOR Properties (Last Removal Date)\tDeviceClasses (53f56307-b6bf-11d0-94f2-00a0c91efb8b)\tDeviceClasses (10497b1b-ba51-44e5-8318-a65c837b6661)\tEnum\\USB VIDPID\t")
 
         temp = ''
         for i in range(numMp2):
@@ -269,6 +269,7 @@ def output_data_to_file_csv(output):
             data.append(device.vid.encode('utf-8'))
             data.append(device.pid.encode('utf-8'))
             data.append(device.parent_prefix_id.encode('utf-8'))
+            data.append(device.drive_letter.encode('utf-8'))
             data.append(device.volume_name.encode('utf-8'))
             data.append(device.guid.encode('utf-8'))
             data.append(device.mountpoint.encode('utf-8'))
