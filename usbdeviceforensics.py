@@ -39,6 +39,7 @@ class WindowsVersions(Enum):
 
 usb_devices = []
 debug_mode = False
+quiet_mode = False
 os_version = WindowsVersions.NotDefined
 
 # Objects #####################################################################
@@ -134,8 +135,9 @@ def process_registry_hive(registry_path, hive_type):
                     continue
 
                 if registry.hive_type() == Registry.HiveType.SYSTEM and hive_type == Registry.HiveType.SYSTEM:
-                    print('Hive name: ' + registry.hive_name())
-                    print('Hive type: ' + registry.hive_type().value)
+                    if quiet_mode is False:
+                        print('Hive name: ' + registry.hive_name())
+                        print('Hive type: ' + registry.hive_type().value)
                     process_usb_stor(registry)
                     process_usb_stor_properties(registry)
                     process_usb(registry)
@@ -143,15 +145,17 @@ def process_registry_hive(registry_path, hive_type):
                     process_device_classes(registry)
 
                 if registry.hive_type() == Registry.HiveType.SOFTWARE and hive_type == Registry.HiveType.SOFTWARE:
-                    print('Hive name: ' + registry.hive_name())
-                    print('Hive type: ' + registry.hive_type().value)
+                    if quiet_mode is False:
+                        print('Hive name: ' + registry.hive_name())
+                        print('Hive type: ' + registry.hive_type().value)
                     get_os_version(registry)
                     process_windows_portable_devices(registry)
                     process_emd_mgmt(registry)
 
                 if registry.hive_type() == Registry.HiveType.NTUSER and hive_type == Registry.HiveType.NTUSER:
-                    print('Hive name: ' + registry.hive_name())
-                    print('Hive type: ' + registry.hive_type().value)
+                    if quiet_mode is False:
+                        print('Hive name: ' + registry.hive_name())
+                        print('Hive type: ' + registry.hive_type().value)
                     process_mountpoints2(registry, f)
 
             except Exception as err:
@@ -275,22 +279,40 @@ def output_data_to_file_csv(output):
             data.append(device.mountpoint.encode('utf-8'))
             if device.install_datetime != datetime.min:
                 data.append(device.install_datetime)
+            else:
+                data.append('')
             if device.usb_stor_datetime != datetime.min:
                 data.append(device.usb_stor_datetime)
+            else:
+                data.append('')
             if device.usbstor_datetime64 != datetime.min:
                 data.append(device.usbstor_datetime64)
+            else:
+                data.append('')
             if device.usbstor_datetime65 != datetime.min:
                 data.append(device.usbstor_datetime65)
+            else:
+                data.append('')
             if device.usbstor_datetime66 != datetime.min:
                 data.append(device.usbstor_datetime66)
+            else:
+                data.append('')
             if device.usbstor_datetime67 != datetime.min:
                 data.append(device.usbstor_datetime67)
+            else:
+                data.append('')
             if device.device_classes_datetime_53f56307b6bf11d094f200a0c91efb8b != datetime.min:
                 data.append(device.device_classes_datetime_53f56307b6bf11d094f200a0c91efb8b)
+            else:
+                data.append('')
             if device.device_classes_datetime_10497b1bba5144e58318a65c837b6661 != datetime.min:
                 data.append(device.device_classes_datetime_10497b1bba5144e58318a65c837b6661)
+            else:
+                data.append('')
             if device.vid_pid_datetime != datetime.min:
                 data.append(device.vid_pid_datetime)
+            else:
+                data.append('')
 
             for mp in device.mountpoint2:
                 if mp.timestamp != datetime.min:
@@ -1011,7 +1033,8 @@ def process_log_file(file):
 def load_file(file):
     """Loads a file as a registry hive"""
     try:
-        print('Loading file: ' + file)
+        if quiet_mode is False:
+            print('Loading file: ' + file)
         registry = Registry.Registry(file)
 
         return registry
@@ -1097,13 +1120,14 @@ def get_reg_value(reg_key, value):
 
 
 def get_key(reg_key, key_name):
-     """Helper method to retrieve a specific key"""
-     try:
-         for sk in reg_key.subkeys():
-             print(sk.name())
-         return reg_key.find_key(key_name)
-     except:
-         return None
+    """Helper method to retrieve a specific key"""
+    try:
+        for sk in reg_key.subkeys():
+            if quiet_mode is False:
+                print(sk.name())
+        return reg_key.find_key(key_name)
+    except:
+        return None
 
 
 def write_debug(**kwargs):
@@ -1129,11 +1153,16 @@ def main():
     parser.add_argument('-f', '--format', choices=['csv', 'text'], help='Output format')
     parser.add_argument('-d', '--debug', action='store_true', help='Debug mode, which outputs details VERY verbosely')
     parser.add_argument('-r', '--registry', required=True, help='Path to registry hives')
+    parser.add_argument('-q', '--quiet', action='store_true', default=False, help='Supress output to the terminal')
     args = parser.parse_args()
 
     if args.debug is True:
         global debug_mode
         debug_mode = True
+
+    if args.quiet is True:
+        global quiet_mode
+        quiet_mode = True
 
     if args.format is not None:
         if args.output is None:
