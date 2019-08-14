@@ -1,3 +1,5 @@
+This project is out of date, and I don't have the time to update. I would recommend an alternative such as https://usbdetective.com/
+
 # Introduction #
 
 usbdeviceforensics is a python script to extract numerous bits of information
